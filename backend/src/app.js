@@ -1,0 +1,32 @@
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+
+import notesRoutes from "./routes/notes.routes.js";
+import { connectDB } from "./config/db.config.js";
+import { rateLimiter } from "./middleware/ratelimiter.middleware.js";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5001;
+
+
+// This middleware parses JSON bodies: req.body
+app.use(express.json());
+app.use(cors());
+app.use(rateLimiter);
+
+// Middleware - Shi which happens b/w req and res
+// app.use((req, res, next) => {
+//     console.log(`Req method is ${req.method} and URL is ${req.url}`);
+//     next();
+// });
+    
+app.use("/api/notes", notesRoutes);
+
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}...`)
+    });
+});
